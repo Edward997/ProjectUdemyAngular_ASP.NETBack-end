@@ -2,6 +2,10 @@ using back_end.Controllers;
 using back_end.Filtros;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
+using System.Configuration;
+using Microsoft.Extensions.Configuration.Json;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.EntityFrameworkCore;
 
 namespace back_end
 {
@@ -9,11 +13,23 @@ namespace back_end
     {
         public static void Main(string[] args)
         {
-
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
             
+            builder.Services.AddDbContext<ApplicationDbContext>(options => 
+            options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
+
+
+            builder.Services.AddCors(options =>
+            {
+                var frontendURL = builder.Configuration.GetValue<string>("frontend_url");
+                
+                    //Metodo para mandar a llamar de otra forma sin usar <string>
+                //var ffrontendURL = builder.Configuration["frontend_url"];
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
+                });
+            });
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             builder.Services.AddControllers(options =>
             {
@@ -60,6 +76,8 @@ namespace back_end
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthentication();
 
