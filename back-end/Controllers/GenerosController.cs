@@ -47,8 +47,9 @@ namespace back_end.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Genero genero) 
+        public async Task<ActionResult> Post([FromBody] GeneroCreacionDTO generoCreacionDTO) 
         {
+            var genero = mapper.Map<Genero>(generoCreacionDTO);
             context.Add(genero);
             await context.SaveChangesAsync();
             return NoContent();
