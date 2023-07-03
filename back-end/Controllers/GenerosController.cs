@@ -1,4 +1,6 @@
-﻿using back_end.Entidades;
+﻿using AutoMapper;
+using back_end.DTOs;
+using back_end.Entidades;
 using back_end.Filtros;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,19 +20,23 @@ namespace back_end.Controllers
         
         private readonly ILogger<GenerosController> logger;
         private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
 
         public GenerosController( 
             ILogger<GenerosController> logger,
-            ApplicationDbContext context) 
+            ApplicationDbContext context,
+            IMapper mapper)
         {
             this.logger = logger;
             this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet] // api/generos
-        public async Task<ActionResult<List<Genero>>> Get()
+        public async Task<ActionResult<List<GeneroDTO>>> Get()
         {
-            return await context.Generos.ToListAsync();
+            var generos = await context.Generos.ToListAsync();
+            return mapper.Map<List<GeneroDTO>>(generos);
         }
 
         
