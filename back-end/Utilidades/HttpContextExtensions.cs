@@ -11,7 +11,7 @@ namespace back_end.Utilidades
             if (httpContext == null) { throw new ArgumentNullException(nameof(httpContext)); }
 
             double cantidad = await queryable.CountAsync();
-            httpContext.Response.Headers.Add("cantidadTotalRegsitros", cantidad.ToString());
+            httpContext.Response.Headers.Add("cantidadTotalRegistros", cantidad.ToString());
 
 
         }
