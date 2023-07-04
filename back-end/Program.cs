@@ -21,17 +21,15 @@ namespace back_end
             options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
 
 
-            builder.Services.AddCors(options =>
+            builder.Services.AddCors(o => o.AddPolicy("corsApp", builder =>
             {
-                var frontendURL = builder.Configuration.GetValue<string>("frontend_url");
-                
-                    //Metodo para mandar a llamar de otra forma sin usar <string>
-                //var ffrontendURL = builder.Configuration["frontend_url"];
-                options.AddDefaultPolicy(builder =>
-                {
-                    builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
-                });
-            });
+                builder.WithOrigins("*")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowAnyHeader()
+                .WithExposedHeaders(new string[] { "cantidadTotalRegistros" });
+            }));
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             builder.Services.AddControllers(options =>
             {
@@ -74,6 +72,9 @@ namespace back_end
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            //cors
+            app.UseCors("corsApp");
 
             app.UseHttpsRedirection();
 
