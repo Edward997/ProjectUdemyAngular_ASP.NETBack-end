@@ -21,11 +21,11 @@ namespace back_end.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] ActorCreacionDTO actorCreacionDTO)
+        public async Task<ActionResult> Post([FromForm] ActorCreacionDTO actorCreacionDTO)
         {
-            var actor = mapper.Map<Actor>(actorCreacionDTO);
-            context.Add(actor);
-            await context.SaveChangesAsync();
+            //var actor = mapper.Map<Actor>(actorCreacionDTO);
+            //context.Add(actor);
+            //await context.SaveChangesAsync();
             return NoContent();
         }
     }
