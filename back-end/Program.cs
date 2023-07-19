@@ -6,6 +6,7 @@ using System.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
+using back_end.Utilidades;
 
 namespace back_end
 {
@@ -16,6 +17,10 @@ namespace back_end
             var builder = WebApplication.CreateBuilder(args);
             
             builder.Services.AddAutoMapper(typeof(Program));
+
+            builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
             options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
@@ -92,6 +97,8 @@ namespace back_end
             app.UseCors("corsApp");
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 

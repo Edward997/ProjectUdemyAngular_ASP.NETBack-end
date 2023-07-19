@@ -24,7 +24,7 @@ namespace back_end.Utilidades
             return blob.Uri.ToString();
         }
 
-        public async Task BorrarArchivos(string ruta, string contenedor)
+        public async Task BorrarArchivo(string ruta, string contenedor)
         {
             if (string.IsNullOrEmpty(ruta))
             {
@@ -40,8 +40,13 @@ namespace back_end.Utilidades
 
         public async Task<string> EditarArchivo(string contenedor, IFormFile archivo, string ruta)
         {
-            await BorrarArchivos(ruta, contenedor);
+            await BorrarArchivo(ruta, contenedor);
             return await GuardarArchivo(contenedor, archivo);
+        }
+
+        public Task BorrarArchivos(string ruta, string contenedor)
+        {
+            throw new NotImplementedException();
         }
     }
 }
