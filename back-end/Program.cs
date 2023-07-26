@@ -7,6 +7,9 @@ using Microsoft.Extensions.Configuration.Json;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using back_end.Utilidades;
+using NetTopologySuite.Geometries;
+using NetTopologySuite;
+using AutoMapper;
 
 namespace back_end
 {
@@ -18,12 +21,23 @@ namespace back_end
             
             builder.Services.AddAutoMapper(typeof(Program));
 
+            builder.Services.AddSingleton(provider =>
+                new MapperConfiguration(config =>
+                {
+                    var geometryFactory = provider.GetRequiredService<GeometryFactory>();
+                    config.AddProfile(new AutoMapperProfiles(geometryFactory));
+                }).CreateMapper());
+
+            builder.Services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
+
             builder.Services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
 
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
-            options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"),
+            sqlServer => sqlServer.UseNetTopologySuite()));
+
 
             /*
             builder.Services.AddCors(options =>
@@ -40,7 +54,7 @@ namespace back_end
             });
             */
 
-            
+
             builder.Services.AddCors(o => o.AddPolicy("corsApp", builder =>
             {
                 builder.WithOrigins("*")
