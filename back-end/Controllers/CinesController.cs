@@ -12,7 +12,8 @@ namespace back_end.Controllers
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
 
-        public CinesController (ApplicationDbContext context, IMapper mapper)
+        public CinesController (ApplicationDbContext context, 
+            IMapper mapper)
         {
             this.context = context;
             this.mapper = mapper;
