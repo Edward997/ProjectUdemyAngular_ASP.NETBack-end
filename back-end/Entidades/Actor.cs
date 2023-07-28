@@ -11,5 +11,6 @@ namespace back_end.Entidades
         public string Biografia { get; set; }
         public DateTime FechaNacimiento { get; set; }
         public string Foto { get; set; }
+        public List<PeliculasActores> PeliculasActores { get; set; }
     }
 }
