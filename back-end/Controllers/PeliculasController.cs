@@ -23,6 +23,31 @@ namespace back_end.Controllers
             this.almacenadorArchivos = almacenadorArchivos;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<LandingPageDTO>> Get()
+        {
+            var top = 6;
+            var hoy = DateTime.Today;
+
+            var proximosEstrenos = await context.Peliculas
+                .Where(x => x.FechaLanzamiento > hoy)
+                .OrderBy(x => x.FechaLanzamiento)
+                .Take(top)
+                .ToListAsync();
+
+            var enCines = await context.Peliculas
+                .Where(x => x.EnCines)
+                .OrderBy(x => x.FechaLanzamiento)
+                .Take(top)
+                .ToListAsync();
+
+            var resultado = new LandingPageDTO();
+            resultado.ProximosEstrenos = mapper.Map<List<PeliculaDTO>>(proximosEstrenos);
+            resultado.EnCines = mapper.Map<List<PeliculaDTO>>(enCines);
+
+            return resultado;
+        }
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<PeliculaDTO>> Get(int id)
         {
