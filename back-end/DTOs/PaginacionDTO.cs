@@ -18,5 +18,7 @@
             }
 
         }
+
+        public int RecordsPorPagina { get; internal set; }
     }
 }
