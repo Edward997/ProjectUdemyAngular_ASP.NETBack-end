@@ -181,7 +181,7 @@ namespace back_end.Controllers
             EscribirOrdenActores(pelicula);
 
             await context.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
 
         private void EscribirOrdenActores(Pelicula pelicula)
@@ -193,6 +193,25 @@ namespace back_end.Controllers
                     pelicula.PeliculasActores[i].Orden = i;
                 }
             }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var pelicula = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (pelicula == null)
+            {
+                return NotFound();
+            }
+
+            
+            context.Remove(pelicula);
+            await almacenadorArchivos.BorrarArchivos(pelicula.Poster, contenedor);
+            await context.SaveChangesAsync();
+
+
+            return Ok();
         }
     }
 }

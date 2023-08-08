@@ -30,7 +30,21 @@
 
         public Task BorrarArchivos(string ruta, string contenedor)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+            if (string.IsNullOrEmpty(ruta))
+            {
+                return Task.CompletedTask;
+            }
+
+            var nombreArchivo = Path.GetFileName(ruta);
+            var directorioArchivo = Path.Combine(env.WebRootPath, contenedor, nombreArchivo);
+
+            if (File.Exists(directorioArchivo))
+            {
+                File.Delete(directorioArchivo);
+            }
+
+            return Task.CompletedTask;
         }
 
         public async Task<string> EditarArchivo(string contenedor, IFormFile archivo, string ruta)
