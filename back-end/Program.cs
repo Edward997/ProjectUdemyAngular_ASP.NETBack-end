@@ -10,6 +10,9 @@ using back_end.Utilidades;
 using NetTopologySuite.Geometries;
 using NetTopologySuite;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace back_end
 {
@@ -63,8 +66,24 @@ namespace back_end
                 .AllowAnyHeader()
                 .WithExposedHeaders(new string[] { "cantidadTotalRegistros" });
             }));
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opciones =>
+                opciones.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["llavejwt"])),
+                    ClockSkew = TimeSpan.Zero
+                });
             
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             builder.Services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(MiFiltroDeAccion));

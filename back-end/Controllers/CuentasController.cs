@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace back_end.Controllers
 {
@@ -11,10 +14,16 @@ namespace back_end.Controllers
     public class CuentasController: ControllerBase
     {
         private readonly UserManager<IdentityUser> userManager;
+        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly IConfiguration configuration;
 
-        public CuentasController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public CuentasController(UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            IConfiguration configuration)
         {
             this.userManager = userManager;
+            this.signInManager = signInManager;
+            this.configuration = configuration;
         }
 
         [HttpPost("crear")]
@@ -25,7 +34,7 @@ namespace back_end.Controllers
 
             if (resultado.Succeeded)
             {
-
+                return await ConstruirToken(credenciales);
             }
             else
             {
@@ -33,7 +42,23 @@ namespace back_end.Controllers
             }
         }
 
-        private async Task<RespuestaAutenticacion> ContruirToken(CredencialesUsuario credenciales)
+        [HttpPost("login")]
+        public async Task<ActionResult<RespuestaAutenticacion>> Login([FromBody] CredencialesUsuario credenciales)
+        {
+            var resultado = await signInManager.PasswordSignInAsync(credenciales.Email, credenciales.Password,
+                isPersistent: false, lockoutOnFailure: false);
+
+            if(resultado.Succeeded)
+            {
+                return await ConstruirToken(credenciales);
+            }
+            else
+            {
+                return BadRequest("Login incorrecto");
+            }
+        }
+
+        private async Task<RespuestaAutenticacion> ConstruirToken(CredencialesUsuario credenciales)
         {
             var claims = new List<Claim>()
             {
@@ -45,7 +70,19 @@ namespace back_end.Controllers
 
             claims.AddRange(claimsDB);
 
-            var llave = new SymmetricSecurityKey(HeaderEncodingSelector.UTF8.GetBytes(ConfigurationBinder[""]))
+            var llave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["llavejwt"]));
+            var creds = new SigningCredentials(llave, SecurityAlgorithms.HmacSha256);
+
+            var expiracion = DateTime.UtcNow.AddYears(1);
+
+            var token = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
+                expires: expiracion, signingCredentials: creds);
+
+            return new RespuestaAutenticacion()
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Expiracion = expiracion
+            };
         }
     }
 }
